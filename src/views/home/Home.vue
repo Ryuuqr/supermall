@@ -52,28 +52,49 @@
   import NavBar from '../../components/common/navbar/NavBar.vue';
   import TabControl from '../../components/content/tabControl/TabControl'
 
-  import {getHomeMultidata} from "network/home";
+  import {getHomeMultidata, getHomeGoods} from "network/home";
 
   export default {
     name: 'Home',
     components: {
-      NavBar,
       HomeSwiper,
       RecommendView,
       FeatureView,
+      NavBar,
       TabControl
     },
     data() {
       return {
         banners: [],
-        recommends: []
+        recommends: [],
+        goods: {
+          'pop': {page: 0, list: []},
+          'new': {page: 0, list: []},
+          'sell': {page: 0, list: []},
+        }
       }
     },
     created() {
-      getHomeMultidata().then(res => {
+      this.getHomeMultidata()
+
+      this.getHomeGoods('pop')
+      this.getHomeGoods('new')
+      this.getHomeGoods('sell')
+    },
+    methods: {
+      getHomeMultidata() {
+        getHomeMultidata().then(res => {
         this.banners = res.data.banner.list;
         this.recommends = res.data.recommend.list;
       })
+      },
+      getHomeGoods(type) {
+        const page = this.goods[type].page + 1  
+        getHomeGoods(type, page).then(res => {
+          this.goods[type].list.push(...res.data.list)
+          this.goods[type].page += 1
+       })
+      }
     }
   }
 </script>
